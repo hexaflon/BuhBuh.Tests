@@ -4,97 +4,100 @@ using ProjektInzynierski.Pages.Group;
 using TestTest.Models.Db;
 using System.Linq;
 
-public class DeleteGroupCommandTests
+namespace ProjektInzynierski.Tests.GroupTest
 {
-    private DatabaseContext GetContext(string name)
+    public class DeleteGroupCommandTests
     {
-        var options = new DbContextOptionsBuilder<DatabaseContext>()
-            .UseInMemoryDatabase(name)
-            .Options;
-        var context = new DatabaseContext(options);
+        private DatabaseContext GetContext(string name)
+        {
+            var options = new DbContextOptionsBuilder<DatabaseContext>()
+                .UseInMemoryDatabase(name)
+                .Options;
+            var context = new DatabaseContext(options);
 
-        context.Database.EnsureDeleted();
-        context.Database.EnsureCreated();
+            context.Database.EnsureDeleted();
+            context.Database.EnsureCreated();
 
-        return context;
-    }
+            return context;
+        }
 
-    [Fact]
-    public void Execute_ShouldRemoveGroup()
-    {
+        [Fact]
+        public void Execute_ShouldRemoveGroup()
+        {
 
-        using var context = GetContext("DeleteGroupDB");
-
-
-        var group = new Group { Id = 1, Name = "TestGroup", Participants = new List<Participant>() };
-        context.Group.Add(group);
-        context.SaveChanges();
-
-        var command = new DeleteGroupCommand(context, 1);
-        command.Execute();
-
-        Assert.Empty(context.Group);
-    }
-
-    [Fact]
-    public void Execute_ShouldRemoveParticipants()
-    {
-        using var context = GetContext("DeleteGroupDB");
+            using var context = GetContext("DeleteGroupDB");
 
 
-        var group = new Group { Id = 1, Name = "G", Participants = new List<Participant> { new Participant { Id = 1, StudentId = 1 } } };
-        context.Group.Add(group);
-        context.SaveChanges();
+            var group = new Group { Id = 1, Name = "TestGroup", Participants = new List<Participant>() };
+            context.Group.Add(group);
+            context.SaveChanges();
 
-        var command = new DeleteGroupCommand(context, 1);
-        command.Execute();
+            var command = new DeleteGroupCommand(context, 1);
+            command.Execute();
 
-        Assert.Empty(context.Participant);
-    }
+            Assert.Empty(context.Group);
+        }
 
-    [Fact]
-    public void Execute_NonExistingGroup_ShouldNotFail()
-    {
-        using var context = GetContext("DeleteGroupDB");
+        [Fact]
+        public void Execute_ShouldRemoveParticipants()
+        {
+            using var context = GetContext("DeleteGroupDB");
 
 
-        var command = new DeleteGroupCommand(context, 999);
+            var group = new Group { Id = 1, Name = "G", Participants = new List<Participant> { new Participant { Id = 1, StudentId = 1 } } };
+            context.Group.Add(group);
+            context.SaveChanges();
 
-        var ex = Record.Exception(() => command.Execute());
-        Assert.Null(ex);
-    }
+            var command = new DeleteGroupCommand(context, 1);
+            command.Execute();
 
-    [Fact]
-    public void Execute_ShouldDecreaseCount()
-    {
-        using var context = GetContext("DeleteGroupDB");
+            Assert.Empty(context.Participant);
+        }
 
-        var group = new Group { Id = 1, Name = "G" };
-        context.Group.Add(group);
-        context.SaveChanges();
+        [Fact]
+        public void Execute_NonExistingGroup_ShouldNotFail()
+        {
+            using var context = GetContext("DeleteGroupDB");
 
-        var initialCount = context.Group.Count();
-        var command = new DeleteGroupCommand(context, 1);
-        command.Execute();
 
-        Assert.Equal(initialCount - 1, context.Group.Count());
-    }
+            var command = new DeleteGroupCommand(context, 999);
 
-    [Fact]
-    public void Execute_ShouldOnlyRemoveSpecifiedGroup()
-    {
-        using var context = GetContext("DeleteGroupDB");
+            var ex = Record.Exception(() => command.Execute());
+            Assert.Null(ex);
+        }
 
-        context.Group.AddRange(
-            new Group { Id = 1, Name = "G1" },
-            new Group { Id = 2, Name = "G2" }
-        );
-        context.SaveChanges();
+        [Fact]
+        public void Execute_ShouldDecreaseCount()
+        {
+            using var context = GetContext("DeleteGroupDB");
 
-        var command = new DeleteGroupCommand(context, 1);
-        command.Execute();
+            var group = new Group { Id = 1, Name = "G" };
+            context.Group.Add(group);
+            context.SaveChanges();
 
-        Assert.Single(context.Group);
-        Assert.Equal(2, context.Group.First().Id);
+            var initialCount = context.Group.Count();
+            var command = new DeleteGroupCommand(context, 1);
+            command.Execute();
+
+            Assert.Equal(initialCount - 1, context.Group.Count());
+        }
+
+        [Fact]
+        public void Execute_ShouldOnlyRemoveSpecifiedGroup()
+        {
+            using var context = GetContext("DeleteGroupDB");
+
+            context.Group.AddRange(
+                new Group { Id = 1, Name = "G1" },
+                new Group { Id = 2, Name = "G2" }
+            );
+            context.SaveChanges();
+
+            var command = new DeleteGroupCommand(context, 1);
+            command.Execute();
+
+            Assert.Single(context.Group);
+            Assert.Equal(2, context.Group.First().Id);
+        }
     }
 }

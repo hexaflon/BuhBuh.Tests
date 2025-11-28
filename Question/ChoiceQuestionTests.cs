@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using ProjektInzynierski.Pages.Question;
 using TestTest.Models.Db;
 
-namespace ProjektInzynierski.Tests.Question
+namespace ProjektInzynierski.Tests.QuestionTest
 {
     public class ChoiceQuestionTests
     {

@@ -5,7 +5,7 @@ using TestTest.Models.Db;
 using System.Linq;
 using System.Collections.Generic;
 
-namespace ProjektInzynierski.Tests.Question
+namespace ProjektInzynierski.Tests.QuestionTest
 {
     public class QuestionFacadeTests
     {
